@@ -1,6 +1,12 @@
 #ifndef PID_v1_h
 #define PID_v1_h
-#define LIBRARY_VERSION	1.2.1
+#define LIBRARY_VERSION	1.3.0
+
+#ifdef USE_64bit_FLOATINGPOINT // use double precision floats
+  #define FPsz_t  double
+#else // default to 32bit (single precision) floats
+  #define FPsz_t  float
+#endif /* USE_64bit_FLOATINGPOINT */
 
 class PID
 {
@@ -17,13 +23,13 @@ class PID
   #define P_ON_E 1
 
   //commonly used functions **************************************************************************
-    PID(double*, double*, double*,        // * constructor.  links the PID to the Input, Output, and 
-        double, double, double, int, int);//   Setpoint.  Initial tuning parameters are also set here.
+    PID(FPsz_t*, FPsz_t*, FPsz_t*,        // * constructor.  links the PID to the Input, Output, and
+        FPsz_t, FPsz_t, FPsz_t, int, int);//   Setpoint.  Initial tuning parameters are also set here.
                                           //   (overload for specifying proportional mode)
 
-    PID(double*, double*, double*,        // * constructor.  links the PID to the Input, Output, and 
-        double, double, double, int);     //   Setpoint.  Initial tuning parameters are also set here
-	
+    PID(FPsz_t*, FPsz_t*, FPsz_t*,        // * constructor.  links the PID to the Input, Output, and
+        FPsz_t, FPsz_t, FPsz_t, int);     //   Setpoint.  Initial tuning parameters are also set here
+
     void SetMode(int Mode);               // * sets PID to either Manual (0) or Auto (non-0)
 
     bool Compute();                       // * performs the PID calculation.  it should be
@@ -31,59 +37,59 @@ class PID
                                           //   calculation frequency can be set using SetMode
                                           //   SetSampleTime respectively
 
-    void SetOutputLimits(double, double); // * clamps the output to a specific range. 0-255 by default, but
+    void SetOutputLimits(FPsz_t, FPsz_t); // * clamps the output to a specific range. 0-255 by default, but
 										                      //   it's likely the user will want to change this depending on
 										                      //   the application
-	
+
 
 
   //available but not commonly used functions ********************************************************
-    void SetTunings(double, double,       // * While most users will set the tunings once in the 
-                    double);         	    //   constructor, this function gives the user the option
+    void SetTunings(FPsz_t, FPsz_t,       // * While most users will set the tunings once in the
+                    FPsz_t);         	    //   constructor, this function gives the user the option
                                           //   of changing tunings during runtime for Adaptive control
-    void SetTunings(double, double,       // * overload for specifying proportional mode
-                    double, int);         	  
+    void SetTunings(FPsz_t, FPsz_t,       // * overload for specifying proportional mode
+                    FPsz_t, int);
 
 	void SetControllerDirection(int);	  // * Sets the Direction, or "Action" of the controller. DIRECT
 										  //   means the output will increase when error is positive. REVERSE
 										  //   means the opposite.  it's very unlikely that this will be needed
 										  //   once it is set in the constructor.
-    void SetSampleTime(int);              // * sets the frequency, in Milliseconds, with which 
+    void SetSampleTime(int);              // * sets the frequency, in Milliseconds, with which
                                           //   the PID calculation is performed.  default is 100
-										  
-										  
-										  
+
+
+
   //Display functions ****************************************************************
-	double GetKp();						  // These functions query the pid for interal values.
-	double GetKi();						  //  they were created mainly for the pid front-end,
-	double GetKd();						  // where it's important to know what is actually 
+	FPsz_t GetKp();						  // These functions query the pid for interal values.
+	FPsz_t GetKi();						  //  they were created mainly for the pid front-end,
+	FPsz_t GetKd();						  // where it's important to know what is actually
 	int GetMode();						  //  inside the PID.
 	int GetDirection();					  //
 
   private:
 	void Initialize();
-	
-	double dispKp;				// * we'll hold on to the tuning parameters in user-entered 
-	double dispKi;				//   format for display purposes
-	double dispKd;				//
-    
-	double kp;                  // * (P)roportional Tuning Parameter
-    double ki;                  // * (I)ntegral Tuning Parameter
-    double kd;                  // * (D)erivative Tuning Parameter
+
+	FPsz_t dispKp;				// * we'll hold on to the tuning parameters in user-entered
+	FPsz_t dispKi;				//   format for display purposes
+	FPsz_t dispKd;				//
+
+	FPsz_t kp;                  // * (P)roportional Tuning Parameter
+  FPsz_t ki;                  // * (I)ntegral Tuning Parameter
+  FPsz_t kd;                  // * (D)erivative Tuning Parameter
 
 	int controllerDirection;
 	int pOn;
 
-    double *myInput;              // * Pointers to the Input, Output, and Setpoint variables
-    double *myOutput;             //   This creates a hard link between the variables and the 
-    double *mySetpoint;           //   PID, freeing the user from having to constantly tell us
+    FPsz_t *myInput;              // * Pointers to the Input, Output, and Setpoint variables
+    FPsz_t *myOutput;             //   This creates a hard link between the variables and the
+    FPsz_t *mySetpoint;           //   PID, freeing the user from having to constantly tell us
                                   //   what these values are.  with pointers we'll just know.
-			  
+
 	unsigned long lastTime;
-	double outputSum, lastInput;
+	FPsz_t outputSum, lastInput;
 
 	unsigned long SampleTime;
-	double outMin, outMax;
+	FPsz_t outMin, outMax;
 	bool inAuto, pOnE;
 };
 #endif
